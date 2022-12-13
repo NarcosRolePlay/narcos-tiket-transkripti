@@ -9,7 +9,7 @@ module.exports = Plugin => class DemoPlugin extends Plugin {
 	constructor(client, id) {
 		super(client, id, {
 			commands: [],
-			name: 'Text Transcripts'
+			name: 'Tiket Transkript'
 		});
 	}
 
@@ -32,10 +32,10 @@ module.exports = Plugin => class DemoPlugin extends Plugin {
 					user: ticket.creator
 				}
 			});
-			if (!creator) return this.client.log.warn(`Can't create text transcript for ticket #${ticket.number} due to missing creator`);
+			if (!creator) return this.client.log.warn(`Nemogu napraviti transkript za tiket  #${ticket.number} zbog toga sto kreator nedostaje! Izasao sa servera?`);
 
 			const lines = [];
-			lines.push(`Ticket ${ticket.number}, created by ${this.client.cryptr.decrypt(creator.username)}#${creator.discriminator}, ${ticket.createdAt}\n`);
+			lines.push(`Tiket ${ticket.number}, kreiran od strane ${this.client.cryptr.decrypt(creator.username)}#${creator.discriminator}, ${ticket.createdAt}\n`);
 
 			let closer;
 
@@ -48,7 +48,7 @@ module.exports = Plugin => class DemoPlugin extends Plugin {
 				});
 			}
 
-			if (closer) lines.push(`Closed by ${this.client.cryptr.decrypt(closer.username)}#${closer.discriminator}, ${ticket.updatedAt}\n`);
+			if (closer) lines.push(`Zatvoren od strane ${this.client.cryptr.decrypt(closer.username)}#${closer.discriminator}, ${ticket.updatedAt}\n`);
 
 			const messages = await this.client.db.models.Message.findAll({ where: { ticket: id } });
 
@@ -71,7 +71,7 @@ module.exports = Plugin => class DemoPlugin extends Plugin {
 					content += '\n\t' + a.url;
 				});
 				data.embeds?.forEach(() => {
-					content += '\n\t[embedded content]';
+					content += '\n\t[Nazalost podatci napisani u embedu nemogu biti izlogovani kao string!!! Zanemarite ovu poruku]';
 				});
 				lines.push(`[${timestamp}] ${display_name} (${username}#${user.discriminator}) :> ${content}\n`);
 			}
@@ -88,14 +88,14 @@ module.exports = Plugin => class DemoPlugin extends Plugin {
 					const g = await this.client.guilds.fetch(guild.id);
 					const embed = new MessageEmbed()
 						.setColor(guild.colour)
-						.setTitle(`#${channel_name} closed`)
-						.addField('Creator', `<@${ticket.creator}>`)
+						.setTitle(`#${channel_name} zatvoren`)
+						.addField('Kreator', `<@${ticket.creator}>`)
 						.setTimestamp()
 						.setFooter(guild.footer, g.iconURL());
 
-					if (closer) embed.addField('Closed by', `<@${ticket.closed_by}>`);
-					if (ticket.topic) embed.addField('Topic', `\`${this.client.cryptr.decrypt(ticket.topic)}\``);
-					if (ticket.closed_reason) embed.addField('Closed reason', `\`${this.client.cryptr.decrypt(ticket.closed_reason)}\``);
+					if (closer) embed.addField('Zatvoren od strane', `<@${ticket.closed_by}>`);
+					if (ticket.topic) embed.addField('Tema', `\`${this.client.cryptr.decrypt(ticket.topic)}\``);
+					if (ticket.closed_reason) embed.addField('Razlog zatvaranja', `\`${this.client.cryptr.decrypt(ticket.closed_reason)}\``);
 
 					const log_channel = await this.client.channels.fetch(this.config.channels[guild.id]);
 					await log_channel.send({
@@ -103,7 +103,7 @@ module.exports = Plugin => class DemoPlugin extends Plugin {
 						files: [attachment]
 					});
 				} catch (error) {
-					this.client.log.warn('Failed to send text transcript to the guild\'s log channel');
+					this.client.log.warn('Nisam u spio poslati transkript u log kanal');
 					this.client.log.error(error);
 				}
 			}
@@ -112,7 +112,7 @@ module.exports = Plugin => class DemoPlugin extends Plugin {
 				const user = await this.client.users.fetch(ticket.creator);
 				user.send({ files: [attachment] });
 			} catch (error) {
-				this.client.log.warn('Failed to send text transcript to the ticket creator');
+				this.client.log.warn('Nisam uspio poslati transcript tiket creatoru');
 				this.client.log.error(error);
 			}
 
